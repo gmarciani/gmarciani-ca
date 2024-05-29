@@ -56,8 +56,8 @@ openssl verify -CAfile root-ca/certs/ca.cert.pem \
 
 ```
 cat intermediate-ca/certs/intermediate.cert.pem \
-      root-ca/certs/ca.cert.pem > intermediate-ca/certs/ca-chain.cert.pem
-chmod 444 intermediate-ca/certs/ca-chain.cert.pem
+      root-ca/certs/ca.cert.pem > intermediate-ca/certs/gmarciani-ca-chain.cert.pem
+chmod 444 intermediate-ca/certs/gmarciani-ca-chain.cert.pem
 ```
 
 ## Server Certificates
