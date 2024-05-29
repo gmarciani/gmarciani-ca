@@ -96,5 +96,5 @@ openssl pkcs12 -export \
     -name "YAWA" \
     -in server/certs/yawa.com.cert.pem \
     -inkey server/private/yawa.com.key.pem \
-    -out server/private/yawa.com.p12  
+    -out server/private/yawa.p12  
 ```
