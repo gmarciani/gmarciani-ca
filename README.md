@@ -63,15 +63,12 @@ chmod 444 intermediate-ca/certs/ca-chain.cert.pem
 ## Server Certificates
 
 ```
-cd server
-mkdir certs csr private
-openssl genrsa -out private/yawa.com.key.pem 2048
-chmod 400 private/yawa.com.key.pem
+openssl genrsa -out server/private/yawa.com.key.pem 2048
+chmod 400 server/private/yawa.com.key.pem
 ```
 
 ```
-cd ..
-openssl req -config intermediate-ca/openssl.cfg \
+openssl req -config server/openssl.cfg \
       -key server/private/yawa.com.key.pem \
       -new -sha256 -out server/csr/yawa.com.csr.pem
 ```
