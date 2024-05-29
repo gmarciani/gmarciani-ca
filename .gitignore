@@ -1,3 +1,4 @@
 .idea
 *.iml
 */private/*.pem
+*/private/*.p12
