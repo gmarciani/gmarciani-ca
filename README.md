@@ -90,3 +90,11 @@ openssl x509 -noout -text \
 openssl verify -CAfile intermediate-ca/certs/ca-chain.cert.pem \
       server/certs/yawa.com.cert.pem
 ```
+
+```
+openssl pkcs12 -export \
+    -name "YAWA" \
+    -in server/certs/yawa.com.cert.pem \
+    -inkey server/private/yawa.com.key.pem \
+    -out server/private/yawa.com.p12  
+```
