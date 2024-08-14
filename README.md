@@ -1,5 +1,5 @@
 # gmarciani-ca
-GMARCIANI Certification Authority
+GMARCIANI Certificate Authority
 
 ## Root CA
 
