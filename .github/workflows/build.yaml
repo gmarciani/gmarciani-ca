@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: |
+          ref: the branch, tag or SHA to checkout.
+          If empty, the ref is inferred from the event that triggered the workflow.
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  build_certificates:
+    name: Build certificates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Check OpenSSL
+        run: openssl --version
+
+      - name: Build Root CA Certificate
+        run: bash tools/build-root-ca-certificate.sh
+
+      - name: Build Intermediate CA Certificate
+        run: bash tools/build-intermediate-ca-certificate.sh
+
+      - name: Build Server Certificate
+        run: bash tools/build-server-certificate.sh
