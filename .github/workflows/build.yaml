@@ -25,8 +25,8 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
 
-      - name: Check OpenSSL
-        run: openssl -version
+#      - name: Check OpenSSL
+#        run: openssl -version
 
       - name: Build Root CA Certificate
         run: bash tools/build-root-ca-certificate.sh
