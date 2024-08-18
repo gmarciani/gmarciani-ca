@@ -29,10 +29,10 @@ jobs:
 #        run: openssl -version
 
       - name: Build Root CA Certificate
-        run: bash tools/build-root-ca-certificate.sh
+        run: make build_root_ca
 
       - name: Build Intermediate CA Certificate
-        run: bash tools/build-intermediate-ca-certificate.sh
+        run: make build_intermediate_ca
 
       - name: Build Server Certificate
-        run: bash tools/build-server-certificate.sh
+        run: make build_server
