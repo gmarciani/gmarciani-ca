@@ -1,21 +1,48 @@
 #!/usr/bin/env bash
+set -e
 
 # Usage: build-root-ca-certificate.sh
 
-CURRENT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-PROJECT_PATH="$CURRENT_PATH/.."
+PROJECT_PATH="$( cd -- "$(dirname "$0")/.." >/dev/null 2>&1 ; pwd -P )"
+
+# Main Folders
 ROOT_CA_PATH="$PROJECT_PATH/root-ca"
 
-cd "$ROOT_CA_PATH" || exit 1
+# OpenSSL Configuration
+ROOT_CA_CONFIG="$ROOT_CA_PATH/openssl.cfg"
 
-mkdir -p certs crl newcerts private
-chmod 700 private
-touch index.txt
-echo 1000 > serial
-openssl genrsa -out private/ca.key.pem 2048
-chmod 400 private/ca.key.pem
-openssl req -config openssl.cfg \
-      -key private/ca.key.pem \
-      -new -x509 -days 7300 -sha256 -extensions v3_ca \
-      -out certs/ca.cert.pem
-chmod 444 certs/ca.cert.pem
+# Output Directories
+ROOT_CA_PRIVATE_PATH="$ROOT_CA_PATH/private"
+ROOT_CA_CERTS_PATH="$ROOT_CA_PATH/certs"
+ROOT_CA_NEWCERTS_PATH="$ROOT_CA_PATH/newcerts"
+ROOT_CA_CRL_PATH="$ROOT_CA_PATH/crl"
+
+# Files
+ROOT_CA_PRIVATE_KEY="$ROOT_CA_PRIVATE_PATH/ca.key.pem"
+ROOT_CA_CERT="$ROOT_CA_CERTS_PATH/ca.cert.pem"
+ROOT_CA_INDEX="$ROOT_CA_PATH/index.txt"
+ROOT_CA_SERIAL="$ROOT_CA_PATH/serial"
+
+# Initialize folders and files
+mkdir -p "$ROOT_CA_PRIVATE_PATH"
+mkdir -p "$ROOT_CA_CERTS_PATH"
+mkdir -p "$ROOT_CA_NEWCERTS_PATH"
+mkdir -p "$ROOT_CA_CRL_PATH"
+chmod 700 "$ROOT_CA_PRIVATE_PATH"
+touch "$ROOT_CA_INDEX"
+echo 1000 > "$ROOT_CA_SERIAL"
+
+# Create Private Key for the Root CA
+openssl genrsa -out "$ROOT_CA_PRIVATE_KEY" 2048
+chmod 400 "$ROOT_CA_PRIVATE_KEY"
+
+# Create Certificate for the Root CA
+openssl req -config "$ROOT_CA_CONFIG" \
+      -key "$ROOT_CA_PRIVATE_KEY" \
+      -new -x509 -days 7300 \
+      -sha256 -extensions v3_ca \
+      -out "$ROOT_CA_CERT"
+chmod 444 "$ROOT_CA_CERT"
+
+# Checks
+openssl x509 -noout -text -in "$ROOT_CA_CERT"
