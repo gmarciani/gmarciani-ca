@@ -1,37 +1,66 @@
 #!/usr/bin/env bash
+set -e
 
 # Usage: build-server-certificate.sh
 
-CURRENT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-PROJECT_PATH="$CURRENT_PATH/.."
+PROJECT_PATH="$( cd -- "$(dirname "$0")/.." >/dev/null 2>&1 ; pwd -P )"
+
+# Main Folders
 ROOT_CA_PATH="$PROJECT_PATH/root-ca"
 INTERMEDIATE_CA_PATH="$PROJECT_PATH/intermediate-ca"
+INTERMEDIATE_CA_CERTS_PATH="$INTERMEDIATE_CA_PATH/certs"
 SERVER_PATH="$PROJECT_PATH/server"
 
+# OpenSSL Configuration
+SERVER_CONFIG="$SERVER_PATH/openssl.cfg"
+INTERMEDIATE_CA_CONFIG="$INTERMEDIATE_CA_PATH/openssl.cfg"
 
-openssl genrsa -out "$SERVER_PATH/private/yawa.com.key.pem" 2048
-chmod 400 "$SERVER_PATH/private/yawa.com.key.pem"
+# Output Directories
+SERVER_PRIVATE_PATH="$SERVER_PATH/private"
+SERVER_CERTS_PATH="$SERVER_PATH/certs"
+SERVER_CSR_PATH="$ROOT_CA_PATH/csr"
 
-openssl req -config "$SERVER_PATH/openssl.cfg" \
-      -key "$SERVER_PATH/private/yawa.com.key.pem" \
-      -new -sha256 -out "$SERVER_PATH/csr/yawa.com.csr.pem"
+# Files
+SERVER_PRIVATE_KEY="$SERVER_PRIVATE_PATH/yawa.com.key.pem"
+SERVER_P12="$SERVER_PRIVATE_PATH/yawa.com.p12"
+SERVER_CSR="$SERVER_CSR_PATH/yawa.com.csr.pem"
+SERVER_CERT="$SERVER_CERTS_PATH/yawa.com.cert.pem"
+CA_CHAIN_CERT="$INTERMEDIATE_CA_CERTS_PATH/ca-chain.cert.pem"
 
+# Initialize folders and files
+mkdir -p "$SERVER_PRIVATE_PATH"
+mkdir -p "$SERVER_CERTS_PATH"
+mkdir -p "$SERVER_CSR_PATH"
+chmod 700 "$SERVER_PRIVATE_PATH"
+
+# Create Private Key for the Server
+openssl genrsa -out "$SERVER_PRIVATE_KEY" 2048
+chmod 400 "$SERVER_PRIVATE_KEY"
+
+# Create Certificate Signing Request
+openssl req -config "$SERVER_CONFIG" \
+      -key "$SERVER_PRIVATE_KEY" \
+      -new -sha256 \
+      -out "$SERVER_CSR"
+
+# Create Certificate for the Server
 cd "$INTERMEDIATE_CA_PATH" || exit 1
-openssl ca -config openssl.cfg \
-      -extensions server_cert -days 375 -notext -md sha256 \
-      -in "$SERVER_PATH/csr/yawa.com.csr.pem" \
-      -out "$SERVER_PATH/certs/yawa.com.cert.pem"
-chmod 444 "$SERVER_PATH/certs/yawa.com.cert.pem"
+openssl ca -config "$INTERMEDIATE_CA_CONFIG" \
+      -extensions server_cert \
+      -days 375 -notext -md sha256 \
+      -batch \
+      -in "$SERVER_CSR" \
+      -out "$SERVER_CERT"
+chmod 444 "$SERVER_CERT"
 
-cd ..
-openssl x509 -noout -text \
-      -in "$SERVER_PATH/certs/yawa.com.cert.pem"
+# Checks
+openssl x509 -noout -text -in "$SERVER_CERT"
+openssl verify -CAfile "$CA_CHAIN_CERT" "$SERVER_CERT"
 
-openssl verify -CAfile "$INTERMEDIATE_CA_PATH/certs/ca-chain.cert.pem" \
-      "$SERVER_PATH/certs/yawa.com.cert.pem"
-
+# Export to PKCS12 format
 openssl pkcs12 -export \
     -name "YAWA" \
-    -in "$SERVER_PATH/certs/yawa.com.cert.pem" \
-    -inkey "$SERVER_PATH/private/yawa.com.key.pem" \
-    -out "$SERVER_PATH/private/yawa.p12"
+    -in "$SERVER_CERT" \
+    -inkey "$SERVER_PRIVATE_KEY" \
+    -password "pass:yawapass" \
+    -out "$SERVER_P12"
