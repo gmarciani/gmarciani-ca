@@ -39,16 +39,15 @@ chmod 400 "$SERVER_PRIVATE_KEY"
 
 # Create Certificate Signing Request
 openssl req -config "$SERVER_CONFIG" \
+      -new \
       -key "$SERVER_PRIVATE_KEY" \
-      -new -sha256 \
       -out "$SERVER_CSR"
 
 # Create Certificate for the Server
 cd "$INTERMEDIATE_CA_PATH" || exit 1
 openssl ca -config "$INTERMEDIATE_CA_CONFIG" \
       -extensions server_cert \
-      -days 375 -notext -md sha256 \
-      -batch \
+      -batch -notext \
       -in "$SERVER_CSR" \
       -out "$SERVER_CERT"
 chmod 444 "$SERVER_CERT"

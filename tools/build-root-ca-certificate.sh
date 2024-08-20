@@ -38,9 +38,8 @@ chmod 400 "$ROOT_CA_PRIVATE_KEY"
 
 # Create Certificate for the Root CA
 openssl req -config "$ROOT_CA_CONFIG" \
+      -new -x509 \
       -key "$ROOT_CA_PRIVATE_KEY" \
-      -new -x509 -days 7300 \
-      -sha256 -extensions v3_ca \
       -out "$ROOT_CA_CERT"
 chmod 444 "$ROOT_CA_CERT"
 

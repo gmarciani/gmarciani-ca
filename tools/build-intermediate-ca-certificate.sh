@@ -49,7 +49,7 @@ chmod 400 "$INTERMEDIATE_CA_PRIVATE_KEY"
 # Create Certificate Signing Request
 cd "$ROOT_CA_PATH" || exit 1
 openssl req -config "$INTERMEDIATE_CA_CONFIG" \
-      -new -sha256 \
+      -new \
       -key "$INTERMEDIATE_CA_PRIVATE_KEY" \
       -out "$INTERMEDIATE_CA_CSR"
 
@@ -57,8 +57,7 @@ openssl req -config "$INTERMEDIATE_CA_CONFIG" \
 cd "$ROOT_CA_PATH" || exit 1
 openssl ca -config "$ROOT_CA_CONFIG" \
       -extensions v3_intermediate_ca \
-      -days 3650 -notext -md sha256 \
-      -batch \
+      -batch -notext \
       -in "$INTERMEDIATE_CA_CSR" \
       -out "$INTERMEDIATE_CA_CERT"
 chmod 444 "$INTERMEDIATE_CA_CERT"
