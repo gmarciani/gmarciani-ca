@@ -33,7 +33,7 @@ touch "$ROOT_CA_INDEX"
 echo 1000 > "$ROOT_CA_SERIAL"
 
 # Create Private Key for the Root CA
-openssl genrsa -out "$ROOT_CA_PRIVATE_KEY" 2048
+openssl genrsa -out "$ROOT_CA_PRIVATE_KEY" 3072
 chmod 400 "$ROOT_CA_PRIVATE_KEY"
 
 # Create Certificate for the Root CA

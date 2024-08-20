@@ -34,7 +34,7 @@ mkdir -p "$SERVER_CSR_PATH"
 chmod 700 "$SERVER_PRIVATE_PATH"
 
 # Create Private Key for the Server
-openssl genrsa -out "$SERVER_PRIVATE_KEY" 2048
+openssl genrsa -out "$SERVER_PRIVATE_KEY" 3072
 chmod 400 "$SERVER_PRIVATE_KEY"
 
 # Create Certificate Signing Request

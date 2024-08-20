@@ -43,7 +43,7 @@ echo 1000 > "$INTERMEDIATE_CA_SERIAL"
 echo 1000 > "$INTERMEDIATE_CA_CRLNUMBER"
 
 # Create Private Key for the Intermediate CA
-openssl genrsa -out "$INTERMEDIATE_CA_PRIVATE_KEY" 2048
+openssl genrsa -out "$INTERMEDIATE_CA_PRIVATE_KEY" 3072
 chmod 400 "$INTERMEDIATE_CA_PRIVATE_KEY"
 
 # Create Certificate Signing Request
