@@ -1,9 +1,5 @@
 default: build
 
-ifndef VERSION
-VERSION = 1.0.0
-endif
-
 ROOT_CA_DIR = "root-ca"
 INTERMEDIATE_CA_DIR = "intermediate-ca"
 SERVER_DIR = "server"
