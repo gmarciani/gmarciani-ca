@@ -27,6 +27,7 @@ clean: clean_root_ca clean_intermediate_ca clean_server
 clean_root_ca:
 	rm -rf ${ROOT_CA_DIR}/certs
 	rm -rf ${ROOT_CA_DIR}/crl
+	rm -rf ${ROOT_CA_DIR}/csr
 	rm -rf ${ROOT_CA_DIR}/certs
 	rm -rf ${ROOT_CA_DIR}/newcerts
 	rm -rf ${ROOT_CA_DIR}/private
