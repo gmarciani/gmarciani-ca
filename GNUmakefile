@@ -10,6 +10,7 @@ SERVER_DIR = "server"
 TOOLS_DIR = "tools"
 
 # Build
+rebuild: clean build
 build: build_root_ca build_intermediate_ca build_server
 
 build_root_ca:
