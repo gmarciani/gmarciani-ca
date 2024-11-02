@@ -1,20 +1,29 @@
-# gmarciani-ca
+# GMARCIANI Certificate Authority
+
 GMARCIANI Certificate Authority
 
 ## Usage
 
-Build certificate for the Root CA:
-```
-bash tools/build-root-ca-certificate.sh
-```
+Build certificates for the Root CA and Intermediate CA:
 
-Build certificate for the Intermediate CA:
-```
-bash tools/build-intermediate-ca-certificate.sh
+```shell
+make build_ca
 ```
 
 Build certificate for the server:
 
+```shell
+make build_server
 ```
-bash tools/build-server-certificate.sh
+
+Verify certificates:
+
+```shell
+make verify
+```
+
+Cleanup everything (certificates and temp files for Root CA, Intermediate CA and server):
+
+```shell
+make clean
 ```
