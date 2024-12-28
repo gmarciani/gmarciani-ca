@@ -1,1 +1,1 @@
-V	340818211625Z		1000	unknown	/C=IT/ST=CA/L=Cagliari/O=YAWA Inc./OU=YAWA Certificate Authority/CN=yawa.com/emailAddress=giacomo.marciani\+yawa-ca@gmail.com
+V	341031010431Z		1000	unknown	/C=IT/ST=CA/L=Cagliari/O=YAWA Inc./OU=YAWA Certificate Authority/CN=yawa.com/emailAddress=giacomo.marciani\+yawa-ca@gmail.com
