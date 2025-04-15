@@ -1,0 +1,1 @@
+V	350413021653Z		1000	unknown	/C=US/ST=MA/L=Boston/O=YAWA Inc./OU=YAWA Certificate Authority/CN=yawa.com/emailAddress=giacomo.marciani\+yawa-ca@gmail.com
