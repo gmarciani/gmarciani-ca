@@ -37,10 +37,15 @@ openssl genrsa -out "$ROOT_CA_PRIVATE_KEY" 3072
 chmod 400 "$ROOT_CA_PRIVATE_KEY"
 
 # Create Certificate for the Root CA
+# When a certificate is self-signed with prompt=no,
+# the expiration time (-days) must be explicitly passed as openssl argument
+# because the default_days option is not honored.
+# This is a known issue in OpenSSL.
 openssl req -config "$ROOT_CA_CONFIG" \
       -new -x509 \
       -key "$ROOT_CA_PRIVATE_KEY" \
-      -out "$ROOT_CA_CERT"
+      -out "$ROOT_CA_CERT" \
+      -days 3650
 chmod 444 "$ROOT_CA_CERT"
 
 # Checks
