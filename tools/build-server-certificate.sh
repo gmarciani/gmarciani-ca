@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 set -e
 
-# Usage: build-server-certificate.sh
+# Usage: build-server-certificate.sh [SERVER_PATH] [SERVER_NAME]
+# Arguments:
+#   SERVER_PATH (optional): Custom absolute path for server configurations and output
+#                          Default: $PROJECT_PATH/server
+#   SERVER_NAME (optional): Name of the server for certificate files
+#                           Default: my-server
 
 PROJECT_PATH="$( cd -- "$(dirname "$0")/.." >/dev/null 2>&1 ; pwd -P )"
+
+# Use custom server path if provided, otherwise use default
+SERVER_PATH="${1:-$PROJECT_PATH/server}"
+SERVER_NAME="${2:-myserver}"
 
 # Main Folders
 ROOT_CA_PATH="$PROJECT_PATH/root-ca"
 INTERMEDIATE_CA_PATH="$PROJECT_PATH/intermediate-ca"
 INTERMEDIATE_CA_CERTS_PATH="$INTERMEDIATE_CA_PATH/certs"
-SERVER_PATH="$PROJECT_PATH/server"
 
 # OpenSSL Configuration
 SERVER_CONFIG="$SERVER_PATH/openssl.cfg"
@@ -21,10 +29,10 @@ SERVER_CERTS_PATH="$SERVER_PATH/certs"
 SERVER_CSR_PATH="$ROOT_CA_PATH/csr"
 
 # Files
-SERVER_PRIVATE_KEY="$SERVER_PRIVATE_PATH/yawa.key.pem"
-SERVER_P12="$SERVER_PRIVATE_PATH/yawa.p12"
-SERVER_CSR="$SERVER_CSR_PATH/yawa.csr.pem"
-SERVER_CERT="$SERVER_CERTS_PATH/yawa.cert.pem"
+SERVER_PRIVATE_KEY="$SERVER_PRIVATE_PATH/${SERVER_NAME}.key.pem"
+SERVER_P12="$SERVER_PRIVATE_PATH/${SERVER_NAME}.p12"
+SERVER_CSR="$SERVER_CSR_PATH/${SERVER_NAME}.csr.pem"
+SERVER_CERT="$SERVER_CERTS_PATH/${SERVER_NAME}.cert.pem"
 CA_CHAIN_CERT="$INTERMEDIATE_CA_CERTS_PATH/ca-chain.cert.pem"
 
 # Initialize folders and files
@@ -58,8 +66,8 @@ openssl verify -CAfile "$CA_CHAIN_CERT" "$SERVER_CERT"
 
 # Export to PKCS12 format
 openssl pkcs12 -export \
-    -name "YAWA" \
+    -name "${SERVER_NAME}" \
     -in "$SERVER_CERT" \
     -inkey "$SERVER_PRIVATE_KEY" \
-    -password "pass:yawapass" \
+    -password "pass:${SERVER_NAME}pass" \
     -out "$SERVER_P12"

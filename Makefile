@@ -2,7 +2,8 @@ default: build
 
 ROOT_CA_DIR = "root-ca"
 INTERMEDIATE_CA_DIR = "intermediate-ca"
-SERVER_DIR = "server"
+SERVER_DIR ?= server
+SERVER_NAME ?= myserver
 TOOLS_DIR = "tools"
 
 # Build
@@ -19,7 +20,7 @@ build_intermediate_ca:
 	bash ${TOOLS_DIR}/build-intermediate-ca-certificate.sh
 
 build_server:
-	bash ${TOOLS_DIR}/build-server-certificate.sh
+	bash ${TOOLS_DIR}/build-server-certificate.sh ${SERVER_DIR} ${SERVER_NAME}
 
 # Clean
 clean: clean_root_ca clean_intermediate_ca clean_server
