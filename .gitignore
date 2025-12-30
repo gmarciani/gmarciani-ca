@@ -3,3 +3,5 @@
 *.iml
 */private/*.pem
 */private/*.p12
+server/*
+!server/example/

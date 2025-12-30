@@ -3,7 +3,7 @@ default: build
 ROOT_CA_DIR = "root-ca"
 INTERMEDIATE_CA_DIR = "intermediate-ca"
 SERVER_DIR ?= server
-SERVER_NAME ?= myserver
+SERVER_NAME ?= example
 TOOLS_DIR = "tools"
 
 # Build
@@ -20,7 +20,7 @@ build_intermediate_ca:
 	bash ${TOOLS_DIR}/build-intermediate-ca-certificate.sh
 
 build_server:
-	bash ${TOOLS_DIR}/build-server-certificate.sh ${SERVER_DIR} ${SERVER_NAME}
+	bash ${TOOLS_DIR}/build-server-certificate.sh ${SERVER_NAME}
 
 # Clean
 clean: clean_root_ca clean_intermediate_ca clean_server
@@ -47,11 +47,18 @@ clean_intermediate_ca:
 	rm -rf ${INTERMEDIATE_CA_DIR}/serial*
 
 clean_server:
-	rm -rf ${SERVER_DIR}/certs
-	rm -rf ${SERVER_DIR}/csr
-	rm -rf ${SERVER_DIR}/private
+	rm -rf ${SERVER_DIR}/${SERVER_NAME}/certs
+	rm -rf ${SERVER_DIR}/${SERVER_NAME}/private
 
 verify:
-	openssl verify -CAfile "${ROOT_CA_DIR}/certs/ca.cert.pem" "${INTERMEDIATE_CA_DIR}/certs/intermediate.cert.pem"
-	openssl verify -CAfile "${INTERMEDIATE_CA_DIR}/certs/ca-chain.cert.pem" "${SERVER_DIR}/certs/yawa.cert.pem"
+	bash ${TOOLS_DIR}/verify-certificates.sh
+
+verify_server:
+	bash ${TOOLS_DIR}/verify-certificates.sh ${SERVER_NAME}
+
+import_ca:
+	bash ${TOOLS_DIR}/import-ca-certificates.sh
+
+remove_ca:
+	bash ${TOOLS_DIR}/remove-ca-certificates.sh
 

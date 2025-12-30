@@ -1,52 +1,38 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # Usage: build-root-ca-certificate.sh
+# Description: Creates a Root Certificate Authority with private key and self-signed certificate
 
-PROJECT_PATH="$( cd -- "$(dirname "$0")/.." >/dev/null 2>&1 ; pwd -P )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
 
-# Main Folders
-ROOT_CA_PATH="$PROJECT_PATH/root-ca"
+main() {
+    info "Starting Root CA certificate generation..."
+    
+    local project=$(get_project_path)
+    local ca_path="$project/root-ca"
+    local config="$ca_path/openssl.cfg"
+    local key="$ca_path/private/ca.key.pem"
+    local cert="$ca_path/certs/ca.cert.pem"
+    
+    require_file "$config" "Root CA configuration file not found"
+    
+    if confirm_overwrite "$cert" "Root CA certificate"; then
+        cleanup_ca_files "$ca_path" "Root CA"
+    fi
+    
+    init_ca "$ca_path"
+    generate_key "$key" "Root CA private key"
+    
+    run_openssl "Creating Root CA certificate (valid for 10 years)" \
+        req -config "$config" -new -x509 -key "$key" -out "$cert" -days 3650
+    chmod 444 "$cert"
+    success "Root CA certificate created: $cert"
+    
+    verify_certificate "$cert" "" "Root CA certificate"
+    display_cert_info "$cert" "Root CA Certificate"
+    success "Root CA setup completed successfully!"
+}
 
-# OpenSSL Configuration
-ROOT_CA_CONFIG="$ROOT_CA_PATH/openssl.cfg"
-
-# Output Directories
-ROOT_CA_PRIVATE_PATH="$ROOT_CA_PATH/private"
-ROOT_CA_CERTS_PATH="$ROOT_CA_PATH/certs"
-ROOT_CA_NEWCERTS_PATH="$ROOT_CA_PATH/newcerts"
-ROOT_CA_CRL_PATH="$ROOT_CA_PATH/crl"
-
-# Files
-ROOT_CA_PRIVATE_KEY="$ROOT_CA_PRIVATE_PATH/ca.key.pem"
-ROOT_CA_CERT="$ROOT_CA_CERTS_PATH/ca.cert.pem"
-ROOT_CA_INDEX="$ROOT_CA_PATH/index.txt"
-ROOT_CA_SERIAL="$ROOT_CA_PATH/serial"
-
-# Initialize folders and files
-mkdir -p "$ROOT_CA_PRIVATE_PATH"
-mkdir -p "$ROOT_CA_CERTS_PATH"
-mkdir -p "$ROOT_CA_NEWCERTS_PATH"
-mkdir -p "$ROOT_CA_CRL_PATH"
-chmod 700 "$ROOT_CA_PRIVATE_PATH"
-touch "$ROOT_CA_INDEX"
-echo 1000 > "$ROOT_CA_SERIAL"
-
-# Create Private Key for the Root CA
-openssl genrsa -out "$ROOT_CA_PRIVATE_KEY" 3072
-chmod 400 "$ROOT_CA_PRIVATE_KEY"
-
-# Create Certificate for the Root CA
-# When a certificate is self-signed with prompt=no,
-# the expiration time (-days) must be explicitly passed as openssl argument
-# because the default_days option is not honored.
-# This is a known issue in OpenSSL.
-openssl req -config "$ROOT_CA_CONFIG" \
-      -new -x509 \
-      -key "$ROOT_CA_PRIVATE_KEY" \
-      -out "$ROOT_CA_CERT" \
-      -days 3650
-chmod 444 "$ROOT_CA_CERT"
-
-# Checks
-openssl x509 -noout -text -in "$ROOT_CA_CERT"
+main "$@"
