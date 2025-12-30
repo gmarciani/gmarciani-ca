@@ -1,7 +1,13 @@
 .ignore
 .idea
 *.iml
-*/private/*.pem
-*/private/*.p12
+
+# CA directories - ignore all except openssl.cfg
+root-ca/*
+!root-ca/openssl.cfg
+intermediate-ca/*
+!intermediate-ca/openssl.cfg
+
+# Server certificates
 server/*
 !server/example/
