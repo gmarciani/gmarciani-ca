@@ -31,7 +31,7 @@ cleanup_ca_database() {
 }
 
 main() {
-    [[ $# -eq 0 || -z "${1:-}" ]] && { error "SERVER_NAME is required"; exit 1; }
+    [[ $# -eq 0 || -z "${1:-}" ]] && fail "SERVER_NAME is required"
     
     local name="$1"
     info "Starting server certificate generation..."
@@ -79,8 +79,7 @@ main() {
     cd "$ca_path"
     if ! openssl ca -config "$ca_config" -extensions server_cert \
           -batch -notext -in "$csr" -out "$cert"; then
-        error "Failed: Signing server certificate"
-        exit 1
+        fail "Signing server certificate"
     fi
     chmod 444 "$cert"
     success "Server certificate created: $cert"
@@ -91,8 +90,7 @@ main() {
     local password="${name}pass"
     if ! openssl pkcs12 -export -name "$name" -in "$cert" -inkey "$key" \
           -password "pass:$password" -out "$p12"; then
-        error "Failed: Exporting to PKCS#12"
-        exit 1
+        fail "Exporting to PKCS#12"
     fi
     chmod 400 "$p12"
     success "PKCS#12 certificate exported: $p12"

@@ -15,11 +15,12 @@ info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+fail() { error "$1"; exit 1; }
 
 # Check file exists or exit with error
 require_file() {
     local file="$1" msg="${2:-File not found}"
-    [[ -f "$file" ]] || { error "$msg: $file"; exit 1; }
+    [[ -f "$file" ]] || fail "$msg: $file"
 }
 
 # Run openssl command with standard error handling
@@ -27,8 +28,7 @@ run_openssl() {
     local description="$1"; shift
     info "$description..."
     if ! openssl "$@"; then
-        error "Failed: $description"
-        exit 1
+        fail "Failed: $description"
     fi
 }
 
@@ -43,12 +43,12 @@ init_ca() {
     local serial_start="${2:-1000}"
     
     info "Creating directory structure..."
-    mkdir -p "$ca_path"/{private,certs,newcerts,crl,csr}
+    mkdir -p "$ca_path/private" "$ca_path/certs" "$ca_path/newcerts" "$ca_path/crl" "$ca_path/csr"
     chmod 700 "$ca_path/private"
     
     touch "$ca_path/index.txt"
     echo "$serial_start" > "$ca_path/serial"
-    [[ "$ca_path" == *"intermediate"* ]] && echo "$serial_start" > "$ca_path/crlnumber"
+    [[ "$ca_path" == *"intermediate"* ]] && echo "$serial_start" > "$ca_path/crlnumber" || true
 }
 
 # Generate RSA private key
@@ -79,15 +79,13 @@ verify_certificate() {
     info "Verifying $label..."
     
     if ! openssl x509 -noout -text -in "$cert" > /dev/null 2>&1; then
-        error "$label format verification failed"
-        exit 1
+        fail "$label format verification failed"
     fi
     success "$label format verification passed"
     
     if [[ -n "$ca_file" ]]; then
         if ! openssl verify -CAfile "$ca_file" "$cert" > /dev/null 2>&1; then
-            error "$label chain verification failed"
-            exit 1
+            fail "$label chain verification failed"
         fi
         success "$label chain verification passed"
     fi

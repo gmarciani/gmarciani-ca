@@ -11,17 +11,28 @@ import_cert() {
     local cert="$1" label="$2" trust="$3"
     info "Importing $label certificate..."
     if ! sudo security add-trusted-cert -d -r "$trust" -k /Library/Keychains/System.keychain "$cert"; then
-        error "Failed to import $label certificate"
-        return 1
+        fail "Failed to import $label certificate"
     fi
     success "$label certificate imported successfully"
+}
+
+verify_import() {
+    local name="$1" label="$2"
+    info "Verifying $label certificate in Keychain..."
+    if security find-certificate -c "$name" /Library/Keychains/System.keychain &>/dev/null; then
+        success "$label certificate found in System Keychain"
+        return 0
+    else
+        error "$label certificate not found in System Keychain"
+        return 1
+    fi
 }
 
 main() {
     info "Starting CA certificate import process..."
     
-    [[ "$(uname)" == "Darwin" ]] || { error "This script is for macOS only"; exit 1; }
-    command -v security &>/dev/null || { error "macOS 'security' command not found"; exit 1; }
+    [[ "$(uname)" == "Darwin" ]] || fail "This script is for macOS only"
+    command -v security &>/dev/null || fail "macOS 'security' command not found"
     
     local project=$(get_project_path)
     local root_cert="$project/root-ca/certs/ca.cert.pem"
@@ -34,17 +45,20 @@ main() {
     info "You may be prompted for your password"
     echo
     
-    import_cert "$root_cert" "Root CA" "trustRoot" || exit 1
-    info "Root CA certificate added with 'trustRoot' setting"
-    
-    import_cert "$int_cert" "Intermediate CA" "trustAsRoot" || exit 1
-    info "Intermediate CA certificate added with 'trustAsRoot' setting"
+    import_cert "$root_cert" "Root CA" "trustRoot"
+    import_cert "$int_cert" "Intermediate CA" "trustAsRoot"
     
     echo
-    success "CA certificates imported successfully!"
+    info "Verifying import..."
+    local verify_failed=false
+    verify_import "GMARCIANI Root CA" "Root CA" || verify_failed=true
+    verify_import "GMARCIANI Intermediate CA" "Intermediate CA" || verify_failed=true
+    
+    echo
+    [[ "$verify_failed" == true ]] && fail "CA certificate import verification failed"
+    
+    success "CA certificates imported and verified successfully!"
     info "All certificates issued by this CA will now be trusted by macOS"
-    echo
-    warning "Security Note: Remove these certificates when no longer needed (make remove_ca)"
 }
 
 main "$@"

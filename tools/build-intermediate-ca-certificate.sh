@@ -41,8 +41,7 @@ main() {
     cd "$root_path"
     if ! openssl ca -config "$root_config" -extensions v3_intermediate_ca \
           -batch -notext -in "$csr" -out "$cert"; then
-        error "Failed: Signing Intermediate CA certificate"
-        exit 1
+        fail "Signing Intermediate CA certificate"
     fi
     chmod 444 "$cert"
     success "Intermediate CA certificate created: $cert"

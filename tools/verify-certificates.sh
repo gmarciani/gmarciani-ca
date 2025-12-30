@@ -50,7 +50,7 @@ main() {
     local -a server_certs=()
     if [[ -n "$service" ]]; then
         local svc_dir="$project/server/$service"
-        [[ -d "$svc_dir" ]] || { error "Service directory not found: $svc_dir"; exit 1; }
+        [[ -d "$svc_dir" ]] || fail "Service directory not found: $svc_dir"
         while IFS= read -r -d '' f; do server_certs+=("$f"); done < <(find "$svc_dir/certs" -name "*.cert.pem" -print0 2>/dev/null)
         [[ ${#server_certs[@]} -eq 0 ]] && warning "No certificates found for service '$service'"
     else
